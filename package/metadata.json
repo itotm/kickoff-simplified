@@ -1,0 +1,25 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "plasma-devel@kde.org",
+                "Name": "Martin Gräßlin"
+            },
+            {
+                "Email": "mikel5764@gmail.com",
+                "Name": "Mikel Johnson"
+            }
+        ],
+        "Category": "Application Launchers",
+        "Description": "Application launcher (simplified, pure-QML fork without Places tab)",
+        "EnabledByDefault": true,
+        "Icon": "start-here-kde",
+        "Id": "org.kde.plasma.kickoff-simplified",
+        "License": "GPL-2.0+",
+        "Name": "Application Launcher (Simplified)",
+        "Version": "1.0",
+        "Website": "https://kde.org/plasma-desktop/"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0"
+}
