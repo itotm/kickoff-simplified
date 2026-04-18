@@ -215,6 +215,90 @@ BasePage {
             }
         }
 
+        // Search results live on the same stackView as the normal app views,
+        // so only the right-hand content area is replaced — the sidebar and
+        // footer stay visible while searching.
+        Component {
+            id: searchViewComponent
+            KickoffListView {
+                id: searchView
+                objectName: "searchView"
+                mainContentView: true
+                model: kickoff.runnerModel.count ? kickoff.runnerModel.modelForRow(0) : null
+                delegate: KickoffListDelegate {
+                    width: view.availableWidth
+                    isSearchResult: true
+                }
+                section.property: "group"
+                activeFocusOnTab: true
+                Keys.onTabPressed: event => {
+                    kickoff.firstHeaderItem.forceActiveFocus(Qt.TabFocusReason);
+                }
+                Keys.onBacktabPressed: event => {
+                    kickoff.lastHeaderItem.forceActiveFocus(Qt.BacktabFocusReason);
+                }
+                Keys.onUpPressed: event => {
+                    kickoff.searchField.forceActiveFocus(Qt.BacktabFocusReason)
+                }
+
+                Loader {
+                    anchors.centerIn: searchView.view
+                    width: searchView.view.width - (Kirigami.Units.gridUnit * 4)
+
+                    active: searchView.view.count === 0
+                    visible: active
+                    asynchronous: true
+
+                    sourceComponent: PlasmaExtras.PlaceholderMessage {
+                        id: emptyHint
+                        iconName: "edit-none"
+                        opacity: 0
+                        text: i18nc("@info:status", "No matches") // qmllint disable unqualified
+
+                        Connections {
+                            target: kickoff.runnerModel
+                            function onQueryFinished() {
+                                showAnimation.restart()
+                            }
+                        }
+
+                        NumberAnimation {
+                            id: showAnimation
+                            duration: Kirigami.Units.longDuration
+                            easing.type: Easing.OutCubic
+                            property: "opacity"
+                            target: emptyHint
+                            to: 1
+                        }
+                    }
+                }
+            }
+        }
+
+        Connections {
+            target: kickoff.searchField
+            ignoreUnknownSignals: true
+            function onTextChanged() {
+                const text = kickoff.searchField ? kickoff.searchField.text : ""
+                const onSearch = stackView.currentItem
+                    && stackView.currentItem.objectName === "searchView"
+                if (text.length === 0) {
+                    if (onSearch) {
+                        // Restore whichever view matches the current sidebar index.
+                        if (!root.sideBarItem || root.sideBarItem.currentIndex === 0) {
+                            stackView.replace(stackView.preferredFavoritesViewComponent)
+                        } else if (root.sideBarItem.currentIndex === 1) {
+                            stackView.replace(stackView.preferredAllAppsViewComponent)
+                        } else {
+                            stackView.replace(stackView.preferredAppsViewComponent)
+                        }
+                    }
+                } else if (!onSearch) {
+                    stackView.replace(searchViewComponent)
+                }
+            }
+        }
+
         onPreferredFavoritesViewComponentChanged: {
             if (root.sideBarItem !== null && root.sideBarItem.currentIndex === 0) {
                 stackView.replace(stackView.preferredFavoritesViewComponent)

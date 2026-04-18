@@ -95,70 +95,6 @@ EmptyPage {
             objectName: "normalPage"
         }
 
-        Component {
-            id: searchViewComponent
-            KickoffListView {
-                id: searchView
-                objectName: "searchView"
-                mainContentView: true
-                // Forces the function be re-run every time runnerModel.count changes.
-                // This is absolutely necessary to make the search view work reliably.
-                model: kickoff.runnerModel.count ? kickoff.runnerModel.modelForRow(0) : null
-                delegate: KickoffListDelegate {
-                    width: view.availableWidth
-                    isSearchResult: true
-                }
-                section.property: "group"
-                activeFocusOnTab: true
-                Keys.onTabPressed: event => {
-                    kickoff.firstHeaderItem.forceActiveFocus(Qt.TabFocusReason);
-                }
-                Keys.onBacktabPressed: event => {
-                    kickoff.lastHeaderItem.forceActiveFocus(Qt.BacktabFocusReason);
-                }
-                Keys.onUpPressed: event => {
-                    kickoff.searchField.forceActiveFocus(Qt.BacktabFocusReason)
-                }
-                T.StackView.onActivated: {
-                    kickoff.sideBar = null
-                    kickoff.contentArea = searchView
-                }
-
-                Loader {
-                    anchors.centerIn: searchView.view
-                    width: searchView.view.width - (Kirigami.Units.gridUnit * 4)
-
-                    active: searchView.view.count === 0
-                    visible: active
-                    asynchronous: true
-
-                    sourceComponent: PlasmaExtras.PlaceholderMessage {
-                        id: emptyHint
-
-                        iconName: "edit-none"
-                        opacity: 0
-                        text: i18nc("@info:status", "No matches") // qmllint disable unqualified
-
-                        Connections {
-                            target: kickoff.runnerModel
-                            function onQueryFinished() {
-                                showAnimation.restart()
-                            }
-                        }
-
-                        NumberAnimation {
-                            id: showAnimation
-                            duration: Kirigami.Units.longDuration
-                            easing.type: Easing.OutCubic
-                            property: "opacity"
-                            target: emptyHint
-                            to: 1
-                        }
-                    }
-                }
-            }
-        }
-
         Connections {
             target: kickoff
             function onExpandedChanged() {
@@ -197,29 +133,6 @@ EmptyPage {
         // This is here rather than root because events are implicitly forwarded
         // to parent items. Don't want to send multiple events to searchField.
         Keys.forwardTo: kickoff.searchField
-
-        Connections {
-            target: kickoff.searchField
-            ignoreUnknownSignals: true
-            function onTextChanged() {
-                const text = kickoff.searchField ? kickoff.searchField.text : ""
-                if (text.length === 0 &&
-                    contentItemStackView.currentItem.objectName !== "normalPage") {
-                    root.blockingHoverFocus = true
-                    contentItemStackView.reverseTransitions = true
-                    contentItemStackView.replace(normalPage)
-                } else if (text.length > 0) {
-                    if (contentItemStackView.currentItem.objectName !== "searchView") {
-                        contentItemStackView.reverseTransitions = false
-                        contentItemStackView.replace(searchViewComponent)
-                    } else {
-                        root.blockingHoverFocus = true
-                        root.interceptedPosition = null
-                        contentItemStackView.contentItem.currentIndex = 0
-                    }
-                }
-            }
-        }
     }
 
     Component.onCompleted: {

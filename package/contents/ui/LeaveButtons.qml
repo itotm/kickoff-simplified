@@ -14,6 +14,7 @@ import org.kde.plasma.private.kicker as Kicker
 import org.kde.plasma.extras as PlasmaExtras
 import org.kde.plasma.components as PC3
 import org.kde.plasma.core as PlasmaCore
+import org.kde.plasma.plasma5support as P5Support
 import org.kde.kirigami as Kirigami
 import org.kde.kitemmodels as KItemModels
 import org.kde.plasma.plasmoid
@@ -36,25 +37,57 @@ RowLayout {
     // Fade-to-black applies only to these destructive actions.
     readonly property var _fadeFavoriteIds: ["shutdown", "reboot", "logout"]
 
-    // Starts the fade overlay first (so it's visible before any system confirm
-    // dialog steals focus), then triggers the action on the next frame.
+    // Spawns arbitrary commands via the Plasma executable data engine, so we
+    // can launch `ksplashqml` right before the action is triggered. That paints
+    // the user's configured Plasma splash over the screen while Plasma tears
+    // down, bridging smoothly into Plymouth.
+    P5Support.DataSource {
+        id: executable
+        engine: "executable"
+        connectedSources: []
+        onNewData: (sourceName, data) => {
+            disconnectSource(sourceName)
+        }
+        function exec(cmd) {
+            connectSource(cmd)
+        }
+    }
+
+    // Starts the fade overlay, and once it's fully black spawns ksplashqml
+    // and triggers the requested system action.
     function triggerWithFade(filteredModel, index, favoriteId) {
         const shouldFade = Plasmoid.configuration.fadeOnExit && _fadeFavoriteIds.includes(String(favoriteId))
-        if (shouldFade) {
-            startFade()
-        }
         deferredTrigger.filteredModel = filteredModel
         deferredTrigger.index = index
-        deferredTrigger.start()
+        deferredTrigger.favoriteId = String(favoriteId)
+        if (shouldFade) {
+            // Spawn ksplashqml up front so it has time to map underneath our
+            // fade overlay during the fade animation. When the fade finishes
+            // we simply hide our overlay and the splash is already on screen.
+            // Detached via `setsid` so it survives the session teardown.
+            executable.exec("setsid -f sh -c 'ksplashqml </dev/null >/dev/null 2>&1' </dev/null >/dev/null 2>&1 &")
+            startFade()
+            // deferredTrigger is started by fadeAnimation.onFinished
+        } else {
+            deferredTrigger.interval = 16
+            deferredTrigger.start()
+        }
     }
 
     Timer {
         id: deferredTrigger
-        interval: 16 // one frame: let the overlay paint before the action may open a modal dialog
+        interval: 16
         repeat: false
         property var filteredModel: null
         property int index: -1
+        property string favoriteId: ""
         onTriggered: {
+            if (_fadeFavoriteIds.includes(favoriteId)) {
+                // ksplashqml was already spawned in triggerWithFade and should
+                // now be mapped under our overlay. Hide the overlay to reveal
+                // it, then trigger the system action.
+                fadeOverlay.visible = false
+            }
             if (filteredModel && index >= 0) {
                 filteredModel.trigger(index)
             }
@@ -67,7 +100,6 @@ RowLayout {
     function startFade() {
         fadeRect.opacity = 0
         fadeOverlay.visible = true
-        fadeOverlay.requestActivate()
         fadeAnimation.restart()
     }
 
@@ -77,29 +109,48 @@ RowLayout {
         fadeOverlay.visible = false
     }
 
-    Window {
+    // Plasma dialog of type OnScreenDisplay renders on the OSD layer, above
+    // panels, on both X11 and Wayland (layer-shell overlay). This lets the
+    // fade cover the Plasma main toolbar too.
+    PlasmaCore.Dialog {
         id: fadeOverlay
         visible: false
-        color: "transparent"
-        flags: Qt.FramelessWindowHint | Qt.BypassWindowManagerHint | Qt.WindowStaysOnTopHint
-        x: Screen.virtualX
-        y: Screen.virtualY
-        width: Screen.desktopAvailableWidth
-        height: Screen.desktopAvailableHeight
+        location: PlasmaCore.Types.Floating
+        type: PlasmaCore.Dialog.OnScreenDisplay
+        flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+        outputOnly: false
+        hideOnWindowDeactivate: false
 
-        Rectangle {
-            id: fadeRect
-            anchors.fill: parent
-            color: "black"
-            opacity: 0
-            focus: true
-            Keys.onEscapePressed: root.stopFade()
-        }
+        // PlasmaCore.Dialog always draws its themed frame around mainItem.
+        // Oversize mainItem so the frame (plus any margins) falls well outside
+        // the visible screen area on every side.
+        readonly property int overscan: 128
 
-        // MouseArea also lets you click anywhere to cancel during testing.
-        MouseArea {
-            anchors.fill: parent
-            onClicked: root.stopFade()
+        // Shift the whole window up-left by `overscan`, and make the content
+        // `2 * overscan` larger in each dimension, so the black area still
+        // covers the full screen and the theme border is never visible.
+        x: -overscan
+        y: -overscan
+
+        mainItem: Item {
+            implicitWidth: Screen.width + fadeOverlay.overscan * 2
+            implicitHeight: Screen.height + fadeOverlay.overscan * 2
+
+            Rectangle {
+                id: fadeRect
+                anchors.fill: parent
+                color: "black"
+                opacity: 0
+                focus: fadeOverlay.visible
+                Keys.onEscapePressed: root.stopFade()
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.BlankCursor
+                acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+                onClicked: root.stopFade()
+            }
         }
     }
 
@@ -109,8 +160,15 @@ RowLayout {
         property: "opacity"
         from: 0
         to: 1
-        duration: 1000
+        duration: 250
         easing.type: Easing.Linear
+        onFinished: {
+            // Only hand off once we're fully black.
+            if (deferredTrigger.favoriteId !== "" && !deferredTrigger.running) {
+                deferredTrigger.interval = 16
+                deferredTrigger.start()
+            }
+        }
     }
 
     Kicker.SystemModel {
@@ -282,13 +340,6 @@ RowLayout {
 
     PlasmaExtras.Menu {
         id: contextMenu
-
-        PlasmaExtras.MenuItem {
-            id: testFadeMenuItem
-            text: i18nc("@action:inmenu Trigger fade-to-black overlay for testing", "Test Fade") // qmllint disable unqualified
-            icon: "view-presentation"
-            onClicked: root.startFade()
-        }
 
         placement: {
             switch (Plasmoid.location) {

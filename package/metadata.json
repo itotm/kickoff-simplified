@@ -3,12 +3,8 @@
     "KPlugin": {
         "Authors": [
             {
-                "Email": "plasma-devel@kde.org",
-                "Name": "Martin Gräßlin"
-            },
-            {
-                "Email": "mikel5764@gmail.com",
-                "Name": "Mikel Johnson"
+                "Name": "itotm",
+                "Email": ""
             }
         ],
         "Category": "Application Launchers",
@@ -19,7 +15,7 @@
         "License": "GPL-2.0+",
         "Name": "Application Launcher (Simplified)",
         "Version": "1.0",
-        "Website": "https://kde.org/plasma-desktop/"
+        "Website": "https://github.com/itotm/kickoff-simplified"
     },
     "X-Plasma-API-Minimum-Version": "6.0"
 }

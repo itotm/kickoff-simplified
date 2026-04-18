@@ -232,7 +232,7 @@ KCM.SimpleKCM {
 
         QQC2.CheckBox {
             id: fadeOnExitCheckbox
-            text: i18nc("@option:check", "Fade to black on exit (shutdown/restart/logout)") // qmllint disable unqualified
+            text: i18nc("@option:check", "Show splash screen on shutdown/restart/logout") // qmllint disable unqualified
             checked: Plasmoid.configuration.fadeOnExit
         }
 
