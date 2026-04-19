@@ -18,12 +18,11 @@ PlasmaExtras.PlasmoidHeading {
     id: root
 
     readonly property alias searchField: searchField
-    readonly property alias configureButton: configureButton
     readonly property alias leaveButtons: leaveButtons
     // Kept for backwards compatibility with callers; no tabs any more.
     property real preferredTabBarWidth: 0
 
-    contentWidth: searchField.implicitWidth + spacing + configureButton.implicitWidth + spacing + leaveButtons.implicitWidth
+    contentWidth: searchField.implicitWidth + spacing + leaveButtons.implicitWidth
     contentHeight: Math.max(searchField.implicitHeight, leaveButtons.implicitHeight)
 
     leftPadding: kickoff.backgroundMetrics.leftPadding
@@ -89,27 +88,6 @@ PlasmaExtras.PlasmoidHeading {
         Keys.onBacktabPressed: event => {
             (kickoff.lastCentralPane || kickoff.firstHeaderItem).forceActiveFocus(Qt.BacktabFocusReason)
         }
-    }
-
-    PC3.ToolButton {
-        id: configureButton
-        z: 1
-        hoverEnabled: true
-        anchors {
-            left: searchField.right
-            leftMargin: root.spacing
-            top: parent.top
-            bottom: parent.bottom
-        }
-        visible: Plasmoid.internalAction("configure").enabled
-        icon.name: "configure"
-        text: Plasmoid.internalAction("configure").text
-        display: PC3.ToolButton.IconOnly
-
-        PC3.ToolTip.text: text
-        PC3.ToolTip.delay: Kirigami.Units.toolTipDelay
-        PC3.ToolTip.visible: hovered
-        onClicked: Plasmoid.internalAction("configure").trigger()
     }
 
     LeaveButtons {
