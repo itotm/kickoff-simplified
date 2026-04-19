@@ -27,8 +27,8 @@ PlasmaExtras.PlasmoidHeading {
 
     leftPadding: kickoff.backgroundMetrics.leftPadding
     rightPadding: kickoff.backgroundMetrics.rightPadding
-    topPadding: Kirigami.Units.smallSpacing
-    bottomPadding: Kirigami.Units.smallSpacing
+    topPadding: Kirigami.Units.smallSpacing * 2
+    bottomPadding: Kirigami.Units.smallSpacing * 2
 
     topInset: 0
     leftInset: 0

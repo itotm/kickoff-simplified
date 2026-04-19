@@ -15,7 +15,7 @@
         </entry>
         <entry name="appNameFormat" type="Int">
             <label>The format used in the display of application names: 0 = NameOnly, 1 = GenericNameOnly, 2 = NameAndGenericName, 3 = GenericNameAndName</label>
-            <default>2</default>
+            <default>0</default>
         </entry>
         <entry name="favorites" type="StringList">
             <label>List of general favorites. Supported values are menu id's (usually .desktop file names), special URLs that expand into default applications (e.g. preferred://browser), document URLs and KPeople contact URIs.</label>
@@ -35,11 +35,11 @@
         </entry>
         <entry name="paneSwap" type="Bool">
             <label>Whether to swap the sidebar and content panes</label>
-            <default>false</default>
+            <default>true</default>
         </entry>
         <entry name="favoritesDisplay" type="Int">
             <label>How to display favorites: 0 = Grid, 1 = List</label>
-            <default>0</default>
+            <default>1</default>
         </entry>
         <entry name="applicationsDisplay" type="Int">
             <label>How to display applications: 0 = Grid, 1 = List</label>
@@ -47,11 +47,11 @@
         </entry>
         <entry name="alphaSort" type="Bool">
             <label>Whether to sort menu contents alphabetically or use manual/system sort order.</label>
-            <default>false</default>
+            <default>true</default>
         </entry>
         <entry name="compactMode" type="Bool">
             <label>Whether to use a compact display style for list items</label>
-            <default>false</default>
+            <default>true</default>
         </entry>
         <entry name="switchCategoryOnHover" type="Bool">
             <label>Whether to allow switching category items on hover</label>
@@ -59,15 +59,15 @@
         </entry>
         <entry name="highlightNewlyInstalledApps" type="Bool">
             <label>Whether to highlight newly installed applications</label>
-            <default>true</default>
+            <default>false</default>
         </entry>
         <entry name="customWidth" type="Int">
             <label>Custom width for the full representation. 0 = automatic.</label>
-            <default>0</default>
+            <default>520</default>
         </entry>
         <entry name="customHeight" type="Int">
             <label>Custom height for the full representation. 0 = automatic.</label>
-            <default>0</default>
+            <default>570</default>
         </entry>
         <entry name="customSideBarWidth" type="Int">
             <label>Custom sidebar width. 0 = automatic.</label>
