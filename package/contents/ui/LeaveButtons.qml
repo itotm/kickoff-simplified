@@ -284,7 +284,7 @@ RowLayout {
         icon.width: Kirigami.Units.iconSizes.smallMedium
         icon.height: Kirigami.Units.iconSizes.smallMedium
         icon.name: "system-log-out"
-        text: i18nc("@title:menu menubutton", "Session") // qmllint disable unqualified
+        text: i18nc("@title:menu menubutton", "Leave") // qmllint disable unqualified
         // Make it look pressed while the menu is open
         down: contextMenu.status === PlasmaExtras.Menu.Open || pressed
         Keys.onTabPressed: event => {

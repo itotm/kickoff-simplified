@@ -71,7 +71,7 @@
         </entry>
         <entry name="customSideBarWidth" type="Int">
             <label>Custom sidebar width. 0 = automatic.</label>
-            <default>0</default>
+            <default>175</default>
         </entry>
         <entry name="fadeOnExit" type="Bool">
             <label>Fade the screen to black when triggering shutdown/restart/logout.</label>
