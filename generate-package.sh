@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-REPO_NAME="kickoff-simplified"
+PLUGIN_ID=$(grep -oP '"Id":\s*"\K[^"]+' package/metadata.json)
 VERSION=$(grep -oP '"Version":\s*"\K[^"]+' package/metadata.json)
-OUTPUT="${REPO_NAME}-${VERSION}.tar.gz"
+OUTPUT="${PLUGIN_ID}-${VERSION}.tar.gz"
 
-tar -czf "$OUTPUT" --transform "s,^package,${REPO_NAME}," package/
+tar -czf "$OUTPUT" --transform "s,^package,${PLUGIN_ID}," package/
 
 echo "Created $OUTPUT"
