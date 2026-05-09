@@ -77,5 +77,37 @@
             <label>Fade the screen to black when triggering shutdown/restart/logout.</label>
             <default>true</default>
         </entry>
+        <entry name="showLockScreen" type="Bool">
+            <label>Show Lock Screen in leave menu.</label>
+            <default>true</default>
+        </entry>
+        <entry name="showLogout" type="Bool">
+            <label>Show Log Out in leave menu.</label>
+            <default>true</default>
+        </entry>
+        <entry name="showSaveSession" type="Bool">
+            <label>Show Save Session in leave menu.</label>
+            <default>true</default>
+        </entry>
+        <entry name="showSwitchUser" type="Bool">
+            <label>Show Switch User in leave menu.</label>
+            <default>true</default>
+        </entry>
+        <entry name="showSuspend" type="Bool">
+            <label>Show Suspend/Sleep in leave menu.</label>
+            <default>true</default>
+        </entry>
+        <entry name="showHibernate" type="Bool">
+            <label>Show Hibernate in leave menu.</label>
+            <default>true</default>
+        </entry>
+        <entry name="showReboot" type="Bool">
+            <label>Show Restart in leave menu.</label>
+            <default>true</default>
+        </entry>
+        <entry name="showShutdown" type="Bool">
+            <label>Show Shut Down in leave menu.</label>
+            <default>true</default>
+        </entry>
     </group>
 </kcfg>
