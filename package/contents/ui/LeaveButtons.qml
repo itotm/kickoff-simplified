@@ -333,6 +333,7 @@ if (mirrored)
 }
 }
 onPressed: {
+    root.rebuildMenu();
     contextMenu.visualParent = this;
     contextMenu.openRelative();
 }
@@ -354,44 +355,6 @@ OverflowMenuButton {
     PC3.ToolTip.delay: Kirigami.Units.toolTipDelay
 }
 
-Instantiator {
-    model: filteredMenuItemsModel
-    delegate: PlasmaExtras.MenuItem {
-        required property int index
-        required property var model
-
-        text: model.display
-        icon: model.decoration
-        onClicked: {
-            root.triggerWithFade(filteredMenuItemsModel, index, model.favoriteId)
-        }
-    }
-    onObjectAdded: (index, object) => root.rebuildMenu()
-    onObjectRemoved: (index, object) => root.rebuildMenu()
-}
-
-function rebuildMenu()
-{
-    contextMenu.clearMenuItems()
-    for (var i = 0; i < filteredMenuItemsModel.rowCount(); i++) {
-        var item = Qt.createQmlObject(
-            'import org.kde.plasma.extras as PlasmaExtras; PlasmaExtras.MenuItem { }',
-            contextMenu)
-            var idx = filteredMenuItemsModel.index(i, 0)
-            var display = filteredMenuItemsModel.data(idx, Qt.DisplayRole)
-            var decoration = filteredMenuItemsModel.data(idx, Qt.DecorationRole)
-            var favoriteId = filteredMenuItemsModel.data(idx, filteredMenuItemsModel.KItemModels.KRoleNames.role("favoriteId"))
-            item.text = display
-            item.icon = decoration
-            var capturedI = i
-            var capturedFavId = favoriteId
-            item.clicked.connect(function() {
-            root.triggerWithFade(filteredMenuItemsModel, capturedI, capturedFavId)
-        })
-        contextMenu.addMenuItem(item)
-    }
-}
-
 PlasmaExtras.Menu {
     id: contextMenu
 
@@ -406,5 +369,36 @@ PlasmaExtras.Menu {
         return PlasmaExtras.Menu.TopPosedRightAlignedPopup;
     }
 }
+}
+
+// Tracks dynamically created menu items so they can be destroyed on rebuild.
+property var _menuItems: []
+
+// Build the context menu from the current model state.
+// Called every time the button is pressed so order is always correct
+// even after show* config flags change.
+function rebuildMenu()
+{
+    contextMenu.clearMenuItems()
+    for (let old of _menuItems) {
+        old.destroy()
+    }
+    _menuItems = []
+    for (let i = 0; i < filteredMenuItemsModel.rowCount(); i++) {
+        let item = Qt.createQmlObject(
+            'import org.kde.plasma.extras as PlasmaExtras; PlasmaExtras.MenuItem { }',
+            contextMenu)
+            let idx = filteredMenuItemsModel.index(i, 0)
+            item.text = filteredMenuItemsModel.data(idx, Qt.DisplayRole)
+            item.icon = filteredMenuItemsModel.data(idx, Qt.DecorationRole)
+            let capturedIndex = i
+            let capturedFavId = filteredMenuItemsModel.data(idx,
+            filteredMenuItemsModel.KItemModels.KRoleNames.role("favoriteId"))
+            item.clicked.connect(function() {
+            root.triggerWithFade(filteredMenuItemsModel, capturedIndex, capturedFavId)
+        })
+        contextMenu.addMenuItem(item)
+        _menuItems.push(item)
+    }
 }
 }
