@@ -24,14 +24,6 @@ RowLayout {
 
     required property real maximumWidth
 
-    // All session/power actions live inside the overflow "Session" menu.
-    readonly property var __layout: ({
-        allActionsArePrimary: false,
-        collapseActionButtons: true,
-        collapseOverflowMenuButton: false,
-        overflowMenuButtonIsVisible: true,
-    })
-
     spacing: kickoff.backgroundMetrics.spacing
 
     // Fade-to-black applies only to these destructive actions.
@@ -233,132 +225,42 @@ Timer {
 }
 
 FilteredModel {
-    id: filteredButtonsModel
-    filterRowCallback: (sourceRow, sourceParent) =>
-    isRowVisible(sourceRow, sourceParent)
-}
-
-FilteredModel {
     id: filteredMenuItemsModel
-    filterRowCallback: root.__layout.collapseActionButtons
-    ? (sourceRow, sourceParent) => isRowVisible(sourceRow, sourceParent)
-    : (sourceRow, sourceParent) => !isRowVisible(sourceRow, sourceParent)
+    filterRowCallback: (sourceRow, sourceParent) => isRowVisible(sourceRow, sourceParent)
 }
 
 Item {
-    Layout.fillWidth: root.__layout.allActionsArePrimary
+    Layout.fillWidth: true
 }
 
-RowLayout {
-    id: buttonsRepeaterRow
-    // HACK Can't use `visible` property, as the layout needs to be
-    // visible to be able to update its implicit size, which in turn is
-    // be used to set collapseActionButtons.
-    enabled: !root.__layout.collapseActionButtons
-    opacity: !root.__layout.collapseActionButtons ? 1 : 0
-    spacing: parent.spacing
-    Repeater {
-        id: buttonRepeater
-
-        model: filteredButtonsModel
-        delegate: PC3.ToolButton {
-            required property int index
-            required property var model
-
-            text: model.display
-            icon.name: model.decoration
-            onClicked: {
-                root.triggerWithFade(model.favoriteId)
-            }
-            display: PC3.AbstractButton.IconOnly;
-            Layout.rightMargin: model.favoriteId === "switch-user" && root.__layout.allActionsArePrimary ? Kirigami.Units.gridUnit : undefined
-
-            PC3.ToolTip.text: text
-            PC3.ToolTip.delay: Kirigami.Units.toolTipDelay
-            PC3.ToolTip.visible: display === PC3.AbstractButton.IconOnly && hovered
-
-            Keys.onTabPressed: event => {
-            if (index === buttonRepeater.count - 1 && !root.__layout.overflowMenuButtonIsVisible)
-            {
-                kickoff.firstHeaderItem.forceActiveFocus(Qt.TabFocusReason)
-            } else {
-            event.accepted = false
-        }
+PC3.ToolButton {
+    id: leaveButton
+    Accessible.role: Accessible.ButtonMenu
+    Layout.fillHeight: true
+    icon.width: Kirigami.Units.iconSizes.smallMedium
+    icon.height: Kirigami.Units.iconSizes.smallMedium
+    icon.name: "system-log-out"
+    text: i18nc("@title:menu menubutton", "Leave") // qmllint disable unqualified
+    display: PC3.AbstractButton.TextBesideIcon
+    down: contextMenu.status === PlasmaExtras.Menu.Open || pressed
+    Keys.onTabPressed: event => {
+        kickoff.firstHeaderItem.forceActiveFocus(Qt.TabFocusReason);
     }
     Keys.onLeftPressed: event => {
-    if (Application.layoutDirection === Qt.LeftToRight)
-    {
-        nextItemInFocusChain(false).forceActiveFocus(Qt.BacktabFocusReason)
-    } else if (index < buttonRepeater.count - 1 || root.__layout.overflowMenuButtonIsVisible) {
-    nextItemInFocusChain().forceActiveFocus(Qt.TabFocusReason)
-}
-}
-Keys.onRightPressed: event => {
-if (Application.layoutDirection === Qt.RightToLeft)
-{
-    nextItemInFocusChain(false).forceActiveFocus(Qt.BacktabFocusReason)
-} else if (index < buttonRepeater.count - 1 || root.__layout.overflowMenuButtonIsVisible) {
-nextItemInFocusChain().forceActiveFocus(Qt.TabFocusReason)
-}
-}
-Keys.onEnterPressed: clicked()
-Keys.onReturnPressed: clicked()
-}
-}
-}
-
-Item {
-    Layout.fillWidth: !root.__layout.allActionsArePrimary
-}
-
-// Just like Kirigami.ActionToolBar, it takes two actual instances of a
-// button with different display modes to calculate the layout properly
-// without binding loops.
-component OverflowMenuButton : PC3.ToolButton {
-Accessible.role: Accessible.ButtonMenu
-Layout.fillHeight: true
-icon.width: Kirigami.Units.iconSizes.smallMedium
-icon.height: Kirigami.Units.iconSizes.smallMedium
-icon.name: "system-log-out"
-text: i18nc("@title:menu menubutton", "Leave") // qmllint disable unqualified
-// Make it look pressed while the menu is open
-down: contextMenu.status === PlasmaExtras.Menu.Open || pressed
-Keys.onTabPressed: event => {
-kickoff.firstHeaderItem.forceActiveFocus(Qt.TabFocusReason);
-}
-Keys.onLeftPressed: event => {
-if (!mirrored)
-{
-    nextItemInFocusChain(false).forceActiveFocus(Qt.BacktabFocusReason)
-}
-}
-Keys.onRightPressed: event => {
-if (mirrored)
-{
-    nextItemInFocusChain(false).forceActiveFocus(Qt.BacktabFocusReason)
-}
-}
-onPressed: {
-    contextMenu.visualParent = this;
-    root.rebuildMenu();
-    contextMenu.openRelative();
-}
-}
-
-OverflowMenuButton {
-    id: overflowMenuButtonTextBesideIcon
-    display: PC3.AbstractButton.TextBesideIcon
-    visible: root.__layout.overflowMenuButtonIsVisible && !root.__layout.collapseOverflowMenuButton
-}
-
-OverflowMenuButton {
-    id: overflowMenuButtonIconOnly
-    display: PC3.AbstractButton.IconOnly
-    visible: root.__layout.overflowMenuButtonIsVisible && root.__layout.collapseOverflowMenuButton
-
-    PC3.ToolTip.text: text
-    PC3.ToolTip.visible: hovered || activeFocus
-    PC3.ToolTip.delay: Kirigami.Units.toolTipDelay
+        if (!mirrored) {
+            nextItemInFocusChain(false).forceActiveFocus(Qt.BacktabFocusReason)
+        }
+    }
+    Keys.onRightPressed: event => {
+        if (mirrored) {
+            nextItemInFocusChain(false).forceActiveFocus(Qt.BacktabFocusReason)
+        }
+    }
+    onPressed: {
+        contextMenu.visualParent = this;
+        root.rebuildMenu();
+        contextMenu.openRelative();
+    }
 }
 
 PlasmaExtras.Menu {

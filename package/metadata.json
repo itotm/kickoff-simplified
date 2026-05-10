@@ -8,13 +8,13 @@
             }
         ],
         "Category": "Application Launchers",
-        "Description": "Application launcher (simplified, pure-QML fork without Places tab)",
+        "Description": "A simplified launcher based on standard kickoff",
         "EnabledByDefault": true,
         "Icon": "start-here-kde",
         "Id": "org.kde.plasma.kickoff-simplified",
         "License": "GPL-2.0+",
-        "Name": "Application Launcher (Simplified)",
-        "Version": "1.3.2",
+        "Name": "Application Launcher Simplified",
+        "Version": "1.3.3",
         "Website": "https://github.com/itotm/kickoff-simplified"
     },
     "X-Plasma-API-Minimum-Version": "6.0",
