@@ -57,10 +57,6 @@
             <label>Whether to allow switching category items on hover</label>
             <default>false</default>
         </entry>
-        <entry name="highlightNewlyInstalledApps" type="Bool">
-            <label>Whether to highlight newly installed applications</label>
-            <default>false</default>
-        </entry>
         <entry name="customWidth" type="Int">
             <label>Custom width for the full representation. 0 = automatic.</label>
             <default>520</default>
