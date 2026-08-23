@@ -14,7 +14,7 @@
         "Id": "org.kde.plasma.kickoff-simplified",
         "License": "GPL-2.0+",
         "Name": "Application Launcher Simplified",
-        "Version": "1.3.4",
+        "Version": "1.3.5",
         "Website": "https://github.com/itotm/kickoff-simplified"
     },
     "X-Plasma-API-Minimum-Version": "6.0",

@@ -45,6 +45,10 @@
             <label>How to display applications: 0 = Grid, 1 = List</label>
             <default>1</default>
         </entry>
+        <entry name="initialView" type="Int">
+            <label>Which view to show when the menu opens: 0 = Favorites, 1 = All Applications</label>
+            <default>0</default>
+        </entry>
         <entry name="alphaSort" type="Bool">
             <label>Whether to sort menu contents alphabetically or use manual/system sort order.</label>
             <default>true</default>

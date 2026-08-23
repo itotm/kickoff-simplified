@@ -32,6 +32,7 @@ KCM.SimpleKCM {
     property bool cfg_paneSwap: Plasmoid.configuration.paneSwap
     property int cfg_favoritesDisplay: Plasmoid.configuration.favoritesDisplay
     property int cfg_applicationsDisplay: Plasmoid.configuration.applicationsDisplay
+    property int cfg_initialView: Plasmoid.configuration.initialView
     property alias cfg_alphaSort: alphaSort.checked
     property var cfg_systemFavorites: Plasmoid.configuration.systemFavorites
     property alias cfg_compactMode: compactModeCheckbox.checked
@@ -68,6 +69,7 @@ KCM.SimpleKCM {
     property bool cfg_paneSwapDefault
     property int cfg_favoritesDisplayDefault
     property int cfg_applicationsDisplayDefault
+    property int cfg_initialViewDefault
     property bool cfg_alphaSortDefault
     property bool cfg_compactModeDefault
     property bool cfg_switchCategoryOnHoverDefault
@@ -350,6 +352,23 @@ KCM.SimpleKCM {
             property int index: 1
             checked: Plasmoid.configuration.applicationsDisplay === index
         }
+
+        QQC2.RadioButton {
+            id: initialViewFavorites
+            Kirigami.FormData.label: i18nc("@title:group prefix for radio button group", "Show on open:") // qmllint disable unqualified
+            text: i18nc("@option:radio Part of a sentence: 'Show favorites on open'", "Favorites") // qmllint disable unqualified
+            QQC2.ButtonGroup.group: initialViewGroup
+            property int index: 0
+            checked: Plasmoid.configuration.initialView === index
+        }
+
+        QQC2.RadioButton {
+            id: initialViewAllApps
+            text: i18nc("@option:radio Part of a sentence: 'Show all applications on open'", "All Applications") // qmllint disable unqualified
+            QQC2.ButtonGroup.group: initialViewGroup
+            property int index: 1
+            checked: Plasmoid.configuration.initialView === index
+        }
     }
 
     QQC2.ButtonGroup {
@@ -378,6 +397,16 @@ KCM.SimpleKCM {
             if (checkedButton)
             {
                 root.cfg_applicationsDisplay = checkedButton.index
+            }
+        }
+    }
+
+    QQC2.ButtonGroup {
+        id: initialViewGroup
+        onCheckedButtonChanged: {
+            if (checkedButton)
+            {
+                root.cfg_initialView = checkedButton.index
             }
         }
     }

@@ -338,7 +338,14 @@ BasePage {
         Connections {
             target: kickoff
             function onExpandedChanged() {
-                if (!kickoff.expanded && kickoff.contentArea.currentItem) {
+                if (kickoff.expanded) {
+                    // Show the configured initial view (Favorites or All Applications)
+                    // each time the menu opens.
+                    const targetIndex = Plasmoid.configuration.initialView === 1 ? 1 : 0
+                    if (root.sideBarItem && root.sideBarItem.currentIndex !== targetIndex) {
+                        root.sideBarItem.currentIndex = targetIndex
+                    }
+                } else if (kickoff.contentArea.currentItem) {
                     kickoff.contentArea.currentItem.forceActiveFocus()
                 }
             }
